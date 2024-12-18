@@ -1,0 +1,23 @@
+<div class="image-upload-container">
+  <h2>Upload Images</h2>
+
+  <input
+    type="file"
+    (change)="onFilesSelected($event)"
+    accept="image/*"
+    multiple
+    class="file-input"
+  />
+
+  <div *ngIf="imagePreviews.length > 0" class="image-preview-container">
+    <h3>Selected Images</h3>
+    <div class="image-thumbnails">
+      <div *ngFor="let preview of imagePreviews" class="image-thumbnail">
+        <img [src]="preview" alt="Image preview" class="thumbnail" />
+        <button (click)="removeImage(preview)" class="remove-btn">
+          Remove
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

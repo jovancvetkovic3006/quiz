@@ -1,0 +1,14 @@
+<div class="quiz-list">
+  <div class="quiz-card add-card" (click)="onAddQuiz()">
+    <div class="card-content">
+      <h3>Add Quiz</h3>
+    </div>
+  </div>
+
+  <div *ngFor="let quiz of quizzes" class="quiz-card">
+    <div class="card-content">
+      <h3>{{ quiz.name }}</h3>
+      <p>{{ quiz.description }}</p>
+    </div>
+  </div>
+</div>

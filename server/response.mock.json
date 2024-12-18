@@ -1,0 +1,20 @@
+{
+  "_id": "60f9d43b8f7e1f3a08d3d1e1",
+  "name": "General Knowledge Quiz",
+  "description": "A fun quiz about general knowledge.",
+  "questions": [
+    {
+      "question": "What is the capital of France?",
+      "options": ["Paris", "London", "Berlin", "Madrid"],
+      "correctAnswer": "Paris",
+      "_id": "60f9d43b8f7e1f3a08d3d1e2"
+    },
+    {
+      "question": "What is 2 + 2?",
+      "options": ["3", "4", "5", "6"],
+      "correctAnswer": "4",
+      "_id": "60f9d43b8f7e1f3a08d3d1e3"
+    }
+  ],
+  "__v": 0
+}
