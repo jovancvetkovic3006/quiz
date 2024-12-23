@@ -8,49 +8,46 @@ const { OpenAI } = require('openai');
 const fs = require('fs');
 const path = require('path');
 const tesseract = require('tesseract.js');
+const { type } = require('os');
 
-// Initialize the Express app
 dotenv.config();
 
-// Initialize the Express app
 const app = express();
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 
-// Connect to MongoDB (replace with your actual connection string]
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
+  .connect(process.env.MONGODB_URI, {})
   .then(() => console.log('Connected to MongoDB'))
   .catch((err) => console.error('MongoDB connection error:', err));
 
-// Define the Quiz model
 const quizSchema = new mongoose.Schema({
-  name: { type: String, required: true },
+  title: { type: String, required: true },
   description: { type: String },
   questions: [
     {
       question: { type: String, required: true },
-      options: [{ type: String, required: true }],
-      correctAnswer: { type: String, required: true },
+      options: {
+        a: { type: String, required: true },
+        b: { type: String, required: true },
+        c: { type: String, required: true },
+        d: { type: String, required: true },
+      },
+      answer: { type: String, required: true },
     },
   ],
 });
 
 const Quiz = mongoose.model('Quiz', quizSchema);
-// Set up OpenAI API
+
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 
-// Set up Multer for image uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, 'uploads/');
+    cb(null, 'server/uploads/');
   },
   filename: (req, file, cb) => {
     cb(null, Date.now() + path.extname(file.originalname));
@@ -59,117 +56,147 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-// Routes
+const Logger = {
+  log: (text, message = '') => {
+    console.log(`[INFO]`);
+    console.log(`[INFO] ${text}`, message);
+  },
+  error: (text, message = '') => {
+    console.log(`[INFO]`);
+    console.log(`[ERROR] ${text}`, message);
+  },
+};
+
+app.get('/api/quizzes', async (req, res) => {
+  try {
+    const quizzes = await Quiz.find();
+    res.json(quizzes);
+  } catch (error) {
+    res.status(500).send('Error reading quizzes: ' + error.message);
+  }
+});
+
 app.post('/api/quizzes', async (req, res) => {
   try {
-    const { name, description, questions } = req.body;
-    const newQuiz = new Quiz({ name, description, questions });
+    const { title, description, questions } = req.body;
+    if (!title || !questions || !Array.isArray(questions)) {
+      return res.status(400).json({ error: 'Invalid input data' });
+    }
 
-    await newQuiz.save();
-    res.status(201).json(newQuiz);
+    // Create a new quiz
+    const quiz = new Quiz({ title, description, questions });
+    const savedQuiz = await quiz.save();
+
+    res.status(201).json(savedQuiz);
   } catch (err) {
-    console.error('Error saving quiz:', err);
+    Logger.error('Error saving quiz:', err);
     res.status(500).json({ message: 'Failed to save quiz' });
   }
 });
 
-// Route to handle image upload and quiz creation
-app.post('/api/upload-image', upload.single('image'), async (req, res) => {
+app.post(
+  '/api/upload-image',
+  upload.single('file'),
+  async (request, response) => {
+    try {
+      if (!request.file) {
+        return response.status(400).json({ message: 'No image uploaded' });
+      }
+
+      const imagePath = path.join(__dirname, '../', request.file.path);
+
+      const extractedText = await extractText(imagePath);
+
+      const quizJson = await generateQuiz(extractedText);
+
+      fs.unlinkSync(imagePath);
+
+      response.status(200).json(quizJson);
+    } catch (error) {
+      Logger.error(error);
+      response
+        .status(500)
+        .json({ message: 'Failed to upload image and generate quiz' });
+    }
+  },
+);
+
+app.delete('/api/quizzes/:id', async (req, res) => {
+  const { id } = req.params;
+
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No image uploaded' });
+    const result = await Quiz.findByIdAndDelete(id);
+
+    if (!result) {
+      return res.status(404).json({ message: 'Quiz not found' });
     }
 
-    const imagePath = path.join(__dirname, req.file.path);
-
-    // Extract text from the image using OCR (Optical Character Recognition)
-    const extractedText = await extractTextFromImage(imagePath);
-
-    // Generate quiz questions from the extracted text
-    const quizQuestions = await generateQuizFromText(extractedText);
-
-    // Save the quiz to the database
-    const quiz = new Quiz({
-      name: 'Generated Quiz from Image',
-      description: 'A quiz created from extracted text.',
-      questions: quizQuestions,
-    });
-
-    await quiz.save();
-
-    // Delete the image file after processing
-    fs.unlinkSync(imagePath);
-
-    res.status(200).json(quiz);
+    res
+      .status(200)
+      .json({ message: 'Quiz deleted successfully', deletedQuiz: result });
   } catch (error) {
-    console.error('Error uploading image:', error);
+    console.error(error);
     res
       .status(500)
-      .json({ message: 'Failed to upload image and generate quiz' });
+      .json({ message: 'Failed to delete quiz', error: error.message });
   }
 });
 
-// Function to extract text from an image (use OCR tool like Tesseract)
-async function extractTextFromImage(imagePath) {
+async function extractText(imagePath) {
   try {
+    Logger.log('Text extraction in progress... Please wait...');
+
     const {
       data: { text },
-    } = await tesseract.recognize(imagePath, 'eng', {
-      logger: (m) => console.log(m), // Optional: to log progress
+    } = await tesseract.recognize(imagePath, 'srp', {
+      logger: (m) => console.log(m),
+      tessedit_pageseg_mode: '12',
     });
+
     return text;
   } catch (error) {
-    console.error('Error with Tesseract.js OCR:', error);
+    Logger.error('Text extraction failed');
     throw new Error('Text extraction failed');
   }
 }
 
-// Function to generate quiz questions using OpenAI's API
-async function generateQuizFromText(text) {
-  const prompt = `Generate a quiz from the following text: \n\n${text}\n\nPlease create multiple choice questions with one correct answer.`;
+async function generateQuiz(text) {
+  let quizJson = null;
+  try {
+    const prompt = `Направи квиз од следећег текста: "${text}"`;
 
-  const response = await openai.chat.completions.create({
-    messages: [
+    Logger.log('Test creation in progress... Please wait...');
+
+    const messages = [
       {
         role: 'system',
         content:
-          'You are a helpful assistant that generates quizzes from text.',
+          "You are an assistant that generates educational quizzes. Respond in JSON format. The JSON should include a 'title' field for the quiz title, and a 'questions' array. Each question object in the array should have 'question' (string), 'options' (object with keys a, b, c, d), and 'answer' (the correct option key).",
       },
-      { role: 'user', content: prompt },
-    ],
-    model: 'gpt-4', // or the desired model
-  });
+      {
+        role: 'user',
+        content: prompt,
+      },
+    ];
 
-  const generatedQuizText = response.choices[0].message.content;
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages,
+      max_tokens: 700,
+      temperature: 0.7,
+    });
 
-  // Convert the generated text into quiz questions format
-  return parseQuizText(generatedQuizText);
-}
+    const quizContent = response.choices?.[0]?.message?.content?.trim() || '{}';
 
-// Function to parse the generated quiz text into a question format
-function parseQuizText(text) {
-  const lines = text.split('\n');
-  const questions = [];
-
-  for (let i = 0; i < lines.length; i++) {
-    const questionLine = lines[i].trim();
-    if (questionLine) {
-      const parts = questionLine.split(' '); // assuming the correct format is "question? A. option B. option ..."
-      const question = parts[0];
-      const options = parts.slice(1);
-      const correctAnswer = options[0]; // This would need to be adjusted based on the structure of OpenAI's response
-      questions.push({
-        question: question,
-        options: options,
-        correctAnswer: correctAnswer,
-      });
-    }
+    quizJson = JSON.parse(quizContent);
+    Logger.log('Quiz question: ', quizJson);
+  } catch (error) {
+    Logger.error('Quiz generation failed.', error);
   }
-  return questions;
+  return quizJson;
 }
 
-// Start the server
 const PORT = 5000;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  Logger.log(`Server is running on port ${PORT}`);
 });

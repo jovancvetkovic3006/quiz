@@ -1,0 +1,95 @@
+.main {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  background-color: #f5f5f5; // Light gray background for better contrast
+  padding: 20px;
+
+  .content {
+    background: #ffffff; // White background for the content box
+    border-radius: 8px; // Rounded corners for the container
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); // Subtle shadow for depth
+    max-width: 1000px;
+    width: 100%;
+    padding: 20px;
+    text-align: center;
+
+    .content-header {
+      font-family: 'Roboto', sans-serif;
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #333; // Dark gray text for readability
+      margin-bottom: 20px;
+
+      button {
+        margin-top: 15px;
+        padding: 10px 20px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #ffffff;
+        background-color: #3f51b5; // Material design primary color
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: #303f9f; // Darker shade on hover
+        }
+
+        &:active {
+          background-color: #283593; // Even darker shade when clicked
+        }
+      }
+    }
+
+    mat-progress-spinner {
+      margin: 20px auto;
+      display: block;
+    }
+
+    h3 {
+      font-family: 'Roboto', sans-serif;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: #444; // Slightly darker text for headings
+      margin-bottom: 20px;
+    }
+
+    // Styles for the app-quiz-list component (if applicable)
+    app-quiz-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+
+      .quiz-item {
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        background: #f9f9f9;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+
+        &:hover {
+          transform: scale(1.02);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        button {
+          float: right;
+          background-color: #e57373; // Material design error color
+          color: white;
+          border: none;
+          border-radius: 4px;
+          padding: 5px 10px;
+
+          &:hover {
+            background-color: #d32f2f; // Darker shade on hover
+          }
+        }
+      }
+    }
+  }
+}

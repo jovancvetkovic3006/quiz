@@ -1,0 +1,14 @@
+/* Optional: Customize the modal */
+mat-dialog-title {
+  color: #3f51b5;
+  font-size: 1.5em;
+}
+
+mat-dialog-content {
+  padding: 20px;
+}
+
+mat-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+}

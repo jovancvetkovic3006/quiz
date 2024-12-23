@@ -1,0 +1,132 @@
+mat-form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.mdc-text-field--filled {
+  border-radius: 8px !important; // Rounded corners
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); // Subtle shadow
+}
+
+mat-progress-spinner {
+  margin: 0 auto;
+}
+
+.wait {
+  color: white;
+  text-align: center;
+  margin: 30px 10px 10px;
+}
+
+.mat-dialog-container {
+  max-width: 600px; // Limit dialog width
+  width: 100%;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+
+  h1[mat-dialog-title] {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-align: center;
+    color: #3f51b5; // Material primary color
+  }
+
+  div[mat-dialog-content] {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+
+    app-image-upload {
+      width: 100%;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    form {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+
+      mat-form-field {
+        width: 100%; // Ensures the form field takes full width
+
+        textarea {
+          width: 100% !important; // Forces the textarea to fill the parent
+          min-height: 100px;
+          resize: vertical;
+          padding: 8px;
+          font-size: 1rem;
+          border: none;
+          box-sizing: border-box;
+        }
+      }
+
+      div[mat-dialog-actions] {
+        display: flex;
+        justify-content: flex-end;
+        gap: 15px;
+        margin-top: 20px;
+      }
+    }
+  }
+}
+
+.button-with-spinner {
+  padding: 5px 30px 5px 5px !important;
+}
+
+button {
+  min-width: 100px;
+  padding: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  border-radius: 4px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+
+  mat-progress-spinner.spinner {
+    position: absolute;
+    right: -34px;
+    top: 10px;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    color: white !important; // Match spinner color to button's text color
+  }
+
+  span {
+    visibility: visible;
+
+    // Hide text when spinner is active
+    &:has(+ mat-progress-spinner.spinner) {
+      visibility: hidden;
+    }
+  }
+
+  &:nth-child(1) {
+    background-color: #f44336; // Cancel button red
+    color: #fff;
+    &:hover {
+      background-color: #d32f2f;
+    }
+  }
+
+  &:nth-child(2) {
+    background-color: #4caf50; // Submit button green
+    color: #fff;
+    &:hover {
+      background-color: #388e3c;
+    }
+
+    &:disabled {
+      background-color: #bdbdbd;
+      cursor: not-allowed;
+    }
+  }
+}

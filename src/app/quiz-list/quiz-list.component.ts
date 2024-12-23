@@ -1,27 +1,48 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnInit,
+  Output,
+  ViewEncapsulation,
+} from '@angular/core';
+import { QuizService } from '../services/quiz.service';
+import { IQuiz } from '../interfaces/interfaces';
+import { MatButtonModule } from '@angular/material/button';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatCardModule } from '@angular/material/card';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from '../confirm-modal/confirm-modal.component';
 
 @Component({
   selector: 'app-quiz-list',
   templateUrl: './quiz-list.component.html',
   styleUrls: ['./quiz-list.component.scss'],
-  imports: [CommonModule],
+  imports: [CommonModule, MatButtonModule, MatToolbarModule, MatCardModule],
+  providers: [QuizService],
 })
 export class QuizListComponent {
-  // Sample quizzes data
-  quizzes = [
-    { name: 'Quiz 1', description: 'Description of Quiz 1' },
-    { name: 'Quiz 2', description: 'Description of Quiz 2' },
-    { name: 'Quiz 3', description: 'Description of Quiz 3' },
-  ];
+  @Input() quizzes: IQuiz[] | null = [];
 
-  // Method to handle adding a quiz
-  onAddQuiz() {
-    // For simplicity, we're adding a new quiz when the add button is clicked
-    const newQuiz = {
-      name: `Quiz ${this.quizzes.length + 1}`,
-      description: `Description of Quiz ${this.quizzes.length + 1}`,
-    };
-    this.quizzes.push(newQuiz);
+  @Output() delete = new EventEmitter<string>();
+  @Output() start = new EventEmitter<string>();
+
+  constructor(public dialog: MatDialog) {}
+
+  deleteQuiz(id: string) {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: { message: 'Are you sure you want to delete this quiz?' },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === 'yes') {
+        this.delete.emit(id);
+      }
+    });
+  }
+
+  startQuiz(id: string) {
+    this.start.emit(id);
   }
 }

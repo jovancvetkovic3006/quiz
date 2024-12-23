@@ -1,19 +1,30 @@
-import { Component } from '@angular/core';
+import { Component, EventEmitter, Output } from '@angular/core';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
+import { QuizService } from '../services/quiz.service';
+import { IQuiz } from '../interfaces/interfaces';
+import { BehaviorSubject } from 'rxjs';
 
 @Component({
   selector: 'app-image-upload',
   templateUrl: './image-upload.component.html',
   styleUrls: ['./image-upload.component.scss'],
-  imports: [CommonModule, HttpClientModule],
+  imports: [CommonModule],
+  providers: [QuizService],
 })
 export class ImageUploadComponent {
   imagePreviews: string[] = [];
 
-  constructor(private http: HttpClient) {}
+  loading = new BehaviorSubject<boolean>(false);
+
+  @Output() added = new EventEmitter<IQuiz>();
+  @Output() creating = new EventEmitter<boolean>();
+
+  constructor(private quizService: QuizService) {}
 
   onFilesSelected(event: any): void {
+    this.creating.emit();
+    this.loading.next(true);
     const files = event.target.files;
 
     for (let i = 0; i < files.length; i++) {
@@ -36,14 +47,14 @@ export class ImageUploadComponent {
   }
 
   uploadFile(formData: FormData): void {
-    this.http.post('YOUR_API_URL_HERE', formData).subscribe(
-      (response) => {
-        console.log('File uploaded successfully', response);
+    this.quizService.uploadFile(formData).subscribe({
+      next: (quiz: IQuiz) => {
+        console.log('File uploaded successfully', quiz);
+        this.added.emit(quiz);
+        this.loading.next(false);
       },
-      (error) => {
-        console.error('Error uploading file', error);
-      },
-    );
+      error: (error) => console.error('Error uploading file', error),
+    });
   }
 
   removeImage(preview: string): void {
