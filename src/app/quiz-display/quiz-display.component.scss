@@ -1,0 +1,62 @@
+.quiz-container {
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+
+  h1 {
+    margin-bottom: 16px;
+    color: #3f51b5;
+  }
+
+  .description {
+    margin-bottom: 24px;
+    font-size: 16px;
+    color: #555;
+  }
+
+  .question-container {
+    background: #f9f9f9;
+    padding: 16px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    h2 {
+      margin-bottom: 16px;
+    }
+
+    .question {
+      font-size: 18px;
+      margin-bottom: 16px;
+    }
+
+    .options {
+      margin-bottom: 24px;
+
+      mat-radio-button {
+        display: block;
+        margin: 8px 0;
+      }
+    }
+
+    .actions {
+      display: flex;
+      justify-content: flex-end;
+
+      button {
+        margin-left: 8px;
+      }
+    }
+  }
+}
+
+mat-radio-group {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  text-align: left;
+}
+
+/* Optional: Styling for individual radio buttons */
+.mat-radio-button {
+  margin-right: 15px; /* Adjust spacing between buttons */
+}

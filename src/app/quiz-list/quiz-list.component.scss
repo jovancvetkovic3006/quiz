@@ -1,86 +1,54 @@
-.quiz-cards-container {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+.app-quiz-list {
+  width: 100%;
+}
+
+.quiz-table-container {
   padding: 20px;
-
-  // Style for individual quiz cards
-  .quiz-card {
-    display: flex;
-    flex-direction: column;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    transition:
-      transform 0.2s ease,
-      box-shadow 0.2s ease;
-  }
-
-  // When no quizzes are available
-  .no-quizzes-message {
-    text-align: center;
-    font-size: 1.2rem;
-    color: #757575;
-    margin-top: 20px;
-  }
-}
-
-// Button styles
-button {
-  font-size: 1rem;
-  padding: 8px 16px;
-  border-radius: 4px;
-
-  &.mat-raised-button {
-    font-weight: bold;
-  }
-
-  &.mat-raised-button.color-primary {
-    background-color: #3f51b5 !important;
-    color: white;
-    &:hover {
-      background-color: #303f9f;
-    }
-  }
-
-  &.mat-raised-button.color-warn {
-    background-color: #f44336;
-    color: white;
-    &:hover {
-      background-color: #d32f2f;
-    }
-  }
-}
-
-mat-card {
-  background-color: #f5f5f5 !important;
-}
-
-// Card header
-mat-card-header {
-  background-color: #f5f5f5;
-  padding: 10px 16px;
-
-  mat-card-title {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: #3f51b5;
-  }
-}
-
-// Card content
-mat-card-content {
-  padding: 16px;
-  font-size: 1rem;
-  color: #555;
-  background-color: #e0e0e0;
+  background-color: #f9f9f9;
   border-radius: 8px;
-  margin: 5px;
 }
 
-// Card actions (buttons)
-mat-card-actions {
+h2 {
+  margin-bottom: 20px;
+  font-size: 1.5rem;
+}
+
+mat-table {
+  width: 100%;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+mat-header-row {
+  background-color: #f1f1f1;
+}
+
+mat-header-cell:last-child,
+mat-cell:last-child {
   display: flex;
-  gap: 10px;
-  padding: 16px;
-  background-color: #fafafa;
+  justify-content: flex-end; /* Align buttons to the right */
+  align-items: center;
+  gap: 8px; /* Space between buttons */
+}
+
+mat-cell {
+  padding: 12px;
+
+  button {
+    padding: 8px 16px !important; /* Add padding for buttons */
+    min-width: 100px !important; /* Ensure Material button minimum width */
+    height: 36px; /* Material default height for raised buttons */
+    font-size: 14px;
+
+    margin-right: 12px;
+  }
+}
+
+mat-row {
+  padding: 4px;
+}
+
+.mat-elevation-z8 {
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }

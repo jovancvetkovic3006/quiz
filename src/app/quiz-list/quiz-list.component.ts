@@ -3,46 +3,58 @@ import {
   Component,
   EventEmitter,
   Input,
-  OnInit,
   Output,
   ViewEncapsulation,
 } from '@angular/core';
 import { QuizService } from '../services/quiz.service';
 import { IQuiz } from '../interfaces/interfaces';
-import { MatButtonModule } from '@angular/material/button';
-import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatCardModule } from '@angular/material/card';
-import { MatDialog } from '@angular/material/dialog';
-import { ConfirmationDialogComponent } from '../confirm-modal/confirm-modal.component';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list'; // For list
+import { MatTableModule } from '@angular/material/table'; // For the table
+import { MatPaginatorModule } from '@angular/material/paginator'; // For pagination (optional)
+import { MatSortModule } from '@angular/material/sort'; // For sorting (optional)
+import { ConfirmDialogService } from '../services/confirm-dialog.service';
 
 @Component({
   selector: 'app-quiz-list',
   templateUrl: './quiz-list.component.html',
   styleUrls: ['./quiz-list.component.scss'],
-  imports: [CommonModule, MatButtonModule, MatToolbarModule, MatCardModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
+    MatListModule, // Add MatListModule
+    MatTableModule, // Import MatTableModule for tables
+    MatPaginatorModule, // Import MatPaginatorModule for pagination (optional)
+    MatSortModule,
+  ],
   providers: [QuizService],
+  encapsulation: ViewEncapsulation.None,
 })
 export class QuizListComponent {
-  @Input() quizzes: IQuiz[] | null = [];
+  @Input() quizzes: IQuiz[] = [];
 
   @Output() delete = new EventEmitter<string>();
-  @Output() start = new EventEmitter<string>();
+  @Output() start = new EventEmitter<IQuiz>();
 
-  constructor(public dialog: MatDialog) {}
+  displayedColumns: string[] = ['title', 'description', 'actions'];
+
+  constructor(private confirmDialog: ConfirmDialogService) {}
 
   deleteQuiz(id: string) {
-    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
-      data: { message: 'Are you sure you want to delete this quiz?' },
-    });
-
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result === 'yes') {
-        this.delete.emit(id);
-      }
-    });
+    this.confirmDialog
+      .openConfirmDialog('Да ли сте сигурни да желите да избришете овај квиз?')
+      .subscribe((confirmed) => {
+        if (confirmed) {
+          this.delete.emit(id);
+        }
+      });
   }
 
-  startQuiz(id: string) {
-    this.start.emit(id);
+  viewQuiz(quiz: IQuiz) {
+    this.start.emit(quiz);
   }
 }

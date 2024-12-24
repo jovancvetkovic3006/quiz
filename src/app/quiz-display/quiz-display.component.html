@@ -1,0 +1,32 @@
+<div class="quiz-container">
+  <h1>{{ quizTitle }}</h1>
+  <p class="description">{{ quizDescription }}</p>
+
+  <div class="question-container">
+    <h2>Питање {{ currentQuestionIndex + 1 }} од {{ questions.length }}</h2>
+    <p class="question">{{ currentQuestion.question }}</p>
+
+    <div class="options">
+      <mat-radio-group [(ngModel)]="selectedOption">
+        <mat-radio-button
+          *ngFor="let option of currentQuestion.options | keyvalue"
+          [value]="option.key"
+          (change)="selectOption($event)"
+        >
+          {{ option.value }}
+        </mat-radio-button>
+      </mat-radio-group>
+    </div>
+
+    <div class="actions">
+      <button
+        mat-raised-button
+        color="primary"
+        [disabled]="!selectedOption"
+        (click)="nextQuestion()"
+      >
+        {{ currentQuestionIndex === questions.length - 1 ? 'Заврши' : 'Даље' }}
+      </button>
+    </div>
+  </div>
+</div>

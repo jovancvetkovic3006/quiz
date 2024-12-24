@@ -1,23 +1,13 @@
-import { Component, Inject } from '@angular/core';
-import {
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-  MatDialogRef,
-} from '@angular/material/dialog';
+import { Component } from '@angular/core';
 
 @Component({
   selector: 'app-info-modal',
   templateUrl: './info-dialog.component.html',
   styleUrls: ['./info-dialog.component.scss'],
-  imports: [MatDialogModule],
+  imports: [],
 })
 export class ModalComponent {
-  constructor(
-    public dialogRef: MatDialogRef<ModalComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { message: string },
-  ) {}
+  constructor() {}
 
-  onClose(): void {
-    this.dialogRef.close();
-  }
+  onClose(): void {}
 }

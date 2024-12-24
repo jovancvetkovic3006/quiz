@@ -1,0 +1,47 @@
+<h1 mat-dialog-title>Резултати</h1>
+
+<div mat-dialog-content>
+  <div
+    *ngFor="let question of data.questions; let i = index"
+    class="result-card"
+  >
+    <mat-card class="question-card">
+      <mat-card-header>
+        <mat-card-title>{{ question.question }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>
+          <strong>Ваш одговор:</strong>
+          {{ question.options[data.userAnswers[i]] }}
+        </p>
+        <p
+          [ngClass]="{
+            correct: data.userAnswers[i] === question.answer,
+            incorrect: data.userAnswers[i] !== question.answer,
+          }"
+        >
+          <strong>Тачан одговор:</strong>
+          {{ question.options[question.answer] }}
+        </p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div class="summary">
+    <mat-card class="summary-card">
+      <mat-card-header>
+        <mat-card-title>Резиме</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <p>
+          Укупно тачно: {{ data.correctCount }} / {{ data.questions.length }}
+        </p>
+        <p>Проценат: {{ data.correctPercentage }}%</p>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+<div mat-dialog-actions>
+  <button mat-button (click)="onClose()">Затвори</button>
+</div>

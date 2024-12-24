@@ -6,21 +6,32 @@ import { HttpClient } from '@angular/common/http';
 import { QuizService } from './services/quiz.service';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
 import { IQuiz } from './interfaces/interfaces';
+
+// Material
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
 import { MatDialog } from '@angular/material/dialog';
 import { NewQuizComponent } from './new-quiz/new-quiz.component';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'; // Import the spinner module
+import { ConfirmDialogService } from './services/confirm-dialog.service';
+import { QuizDisplayComponent } from './quiz-display/quiz-display.component';
+import { ResultsModalComponent } from './results-modal/results-modal.component';
 
 @Component({
   selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
+  providers: [HttpClient, QuizService, ConfirmDialogService],
   imports: [
     CommonModule,
     RouterOutlet,
     QuizListComponent,
-    MatProgressSpinnerModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatCardModule,
+    MatIconModule,
   ],
-  templateUrl: './app.component.html',
-  styleUrl: './app.component.scss',
-  providers: [HttpClient, QuizService],
 })
 export class AppComponent implements OnInit {
   title = 'jejka-quiz';
@@ -30,7 +41,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private quizService: QuizService,
-    private dialog: MatDialog,
+    public dialog: MatDialog,
+    private confirmDialog: ConfirmDialogService,
   ) {}
 
   ngOnInit(): void {
@@ -51,19 +63,46 @@ export class AppComponent implements OnInit {
     });
   }
 
-  deleteQuiz(id: string) {
-    this.quizService.deleteQuiz(id).pipe(
-      tap(() => {
-        this.loadQuizzes();
-      }),
-    );
+  startQuiz(quiz: IQuiz) {
+    const dialogRef = this.dialog.open(QuizDisplayComponent, {
+      data: quiz,
+      width: '500px',
+    });
+    dialogRef.afterClosed().subscribe((results: string[]) => {
+      if (results) {
+        let correctCount = 0;
+        results.forEach((result, index) => {
+          if (quiz.questions[index].answer === result) {
+            correctCount++;
+          }
+        });
+
+        // Calculate the percentage of correct answers
+        const correctPercentage = (correctCount / quiz.questions.length) * 100;
+
+        // Open the results modal with the necessary data
+        this.dialog.open(ResultsModalComponent, {
+          data: {
+            questions: quiz.questions,
+            userAnswers: results,
+            correctCount: correctCount,
+            correctPercentage: correctPercentage,
+          },
+        });
+      }
+    });
+  }
+
+  deleteQuiz(quizId: string) {
+    this.quizService.deleteQuiz(quizId).subscribe(() => {
+      this.loadQuizzes();
+    });
   }
 
   newQuiz() {
     const dialogRef = this.dialog.open(NewQuizComponent, {
       width: '400px',
     });
-
     dialogRef.afterClosed().subscribe((quiz) => {
       if (quiz) {
         console.log('Dialog closed with result:', quiz);

@@ -1,23 +1,16 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  Inject,
-  ViewEncapsulation,
-} from '@angular/core';
-import {
-  MatDialogRef,
-  MAT_DIALOG_DATA,
-  MatDialogModule,
-} from '@angular/material/dialog';
+import { Component, Inject } from '@angular/core';
+
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms'; // Import required Angular Form classes
-import { MatButtonModule } from '@angular/material/button';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { ImageUploadComponent } from '../image-upload/image-upload.component';
 import { IQuiz } from '../interfaces/interfaces';
 import { BehaviorSubject } from 'rxjs';
 import { CommonModule } from '@angular/common';
+import { MatDialogRef } from '@angular/material/dialog';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-new-quiz',
@@ -25,13 +18,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   styleUrls: ['./new-quiz.component.scss'],
   imports: [
     CommonModule,
-    MatDialogModule,
-    MatButtonModule,
-    MatInputModule,
-    MatFormFieldModule,
     ReactiveFormsModule,
     ImageUploadComponent,
     MatProgressSpinnerModule,
+    MatDialogModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatButtonModule,
   ],
 })
 export class NewQuizComponent {
@@ -40,9 +33,8 @@ export class NewQuizComponent {
   loading = new BehaviorSubject<boolean>(false);
 
   constructor(
-    public dialogRef: MatDialogRef<NewQuizComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
     private fb: FormBuilder,
+    public dialogRef: MatDialogRef<NewQuizComponent>,
   ) {
     this.form = this.fb.group({
       description: [''],

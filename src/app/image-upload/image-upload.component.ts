@@ -1,15 +1,22 @@
 import { Component, EventEmitter, Output } from '@angular/core';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
 import { QuizService } from '../services/quiz.service';
 import { IQuiz } from '../interfaces/interfaces';
 import { BehaviorSubject } from 'rxjs';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-image-upload',
   templateUrl: './image-upload.component.html',
   styleUrls: ['./image-upload.component.scss'],
-  imports: [CommonModule],
+  imports: [
+    CommonModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+  ],
   providers: [QuizService],
 })
 export class ImageUploadComponent {

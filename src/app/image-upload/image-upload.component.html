@@ -1,16 +1,23 @@
 <div class="image-upload-container">
   <h2>Одабери слике</h2>
 
-  <label for="file-upload" class="custom-upload-button"> Одабери </label>
   <input
     id="file-upload"
     type="file"
     (change)="onFilesSelected($event)"
     accept="image/*"
     multiple
-    class="file-input"
-    [disabled]="loading | async"
+    style="display: none"
   />
+  <label
+    for="file-upload"
+    class="custom-upload-button mat-raised-button mat-button-base"
+    [class.mat-disabled]="loading | async"
+  >
+    <mat-icon>upload</mat-icon> Одабери
+  </label>
+
+  <mat-spinner *ngIf="loading | async" diameter="32"></mat-spinner>
 
   <div *ngIf="imagePreviews.length > 0" class="image-preview-container">
     <h3>Додате слике</h3>
@@ -18,11 +25,12 @@
       <div *ngFor="let preview of imagePreviews" class="image-thumbnail">
         <img [src]="preview" alt="Image preview" class="thumbnail" />
         <button
+          mat-icon-button
+          color="warn"
           (click)="removeImage(preview)"
-          class="remove-btn"
           [disabled]="loading | async"
         >
-          Избиши
+          <mat-icon>delete</mat-icon>
         </button>
       </div>
     </div>

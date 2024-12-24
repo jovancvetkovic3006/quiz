@@ -1,18 +1,35 @@
-<div class="quiz-cards-container" *ngIf="quizzes?.length">
-  <mat-card *ngFor="let quiz of quizzes" class="quiz-card">
-    <mat-card-header>
-      <mat-card-title>{{ quiz.title }}</mat-card-title>
-    </mat-card-header>
-    <mat-card-content>
-      <p>{{ quiz.description }}</p>
-    </mat-card-content>
-    <mat-card-actions>
-      <button (click)="startQuiz(quiz._id)">Start Quiz</button>
-      <button (click)="deleteQuiz(quiz._id)">Delete</button>
-    </mat-card-actions>
-  </mat-card>
+<div class="quiz-table-container">
+  <h2>Квизови</h2>
 
-  <div *ngIf="!quizzes?.length">
-    Не постоји ниједан квиз. Направи нови квиз.
-  </div>
+  <mat-table [dataSource]="quizzes" class="mat-elevation-z8">
+    <!-- Title Column -->
+    <ng-container matColumnDef="title">
+      <mat-header-cell *matHeaderCellDef> Назив Квиза </mat-header-cell>
+      <mat-cell *matCellDef="let quiz">{{ quiz.title }}</mat-cell>
+    </ng-container>
+
+    <!-- Description Column -->
+    <ng-container matColumnDef="description">
+      <mat-header-cell *matHeaderCellDef> Опис </mat-header-cell>
+      <mat-cell *matCellDef="let quiz">{{
+        quiz.description || '----'
+      }}</mat-cell>
+    </ng-container>
+
+    <!-- Action Column -->
+    <ng-container matColumnDef="actions">
+      <mat-header-cell *matHeaderCellDef> </mat-header-cell>
+      <mat-cell *matCellDef="let quiz">
+        <button mat-raised-button color="primary" (click)="viewQuiz(quiz)">
+          Погледај
+        </button>
+        <button mat-raised-button color="warn" (click)="deleteQuiz(quiz._id)">
+          Избриши
+        </button>
+      </mat-cell>
+    </ng-container>
+
+    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+    <mat-row *matRowDef="let row; columns: displayedColumns"></mat-row>
+  </mat-table>
 </div>
