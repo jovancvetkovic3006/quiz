@@ -96,20 +96,30 @@ app.post('/api/quizzes', async (req, res) => {
 
 app.post(
   '/api/upload-image',
-  upload.single('file'),
+  upload.array('file'),
   async (request, response) => {
+    const files = request.files;
     try {
-      if (!request.file) {
-        return response.status(400).json({ message: 'No image uploaded' });
+      if (!files?.length) {
+        return response.status(400).json({ message: 'No images uploaded' });
       }
 
-      const imagePath = path.join(__dirname, '../', request.file.path);
+      const filePaths = files.map((file) =>
+        path.join(__dirname, '../', file.path),
+      );
 
-      const extractedText = await extractText(imagePath);
+      const resultsText = [];
+      filePaths.forEach((path) => {
+        resultsText.push(extractText(path));
+      });
+      const allTexts = await Promise.all(resultsText);
+      let extractedText = allTexts.join(' ');
 
       const quizJson = await generateQuiz(extractedText);
 
-      fs.unlinkSync(imagePath);
+      filePaths.forEach((path) => {
+        fs.unlinkSync(path);
+      });
 
       response.status(200).json(quizJson);
     } catch (error) {
@@ -165,13 +175,15 @@ async function generateQuiz(text) {
   try {
     const prompt = `Направи квиз од следећег текста: "${text}"`;
 
+    Logger.log('Extracted text\n', prompt);
+    Logger.log('------------------------------------------------');
     Logger.log('Test creation in progress... Please wait...');
 
     const messages = [
       {
         role: 'system',
         content:
-          "You are an assistant that generates educational quizzes. Respond in JSON format. The JSON should include a 'title' field for the quiz title, and a 'questions' array. Each question object in the array should have 'question' (string), 'options' (object with keys a, b, c, d), and 'answer' (the correct option key).",
+          "You are an assistant that generates educational quizzes. Respond in JSON format. The JSON should include a 'title' field for the quiz title, and a 'questions' array. Each question object in the array should have 'question' (string), 'options' (object with keys a, b, c, d), and 'answer' (the correct option key). Create as many questions as possible.",
       },
       {
         role: 'user',
@@ -182,7 +194,7 @@ async function generateQuiz(text) {
     const response = await openai.chat.completions.create({
       model: 'gpt-4',
       messages,
-      max_tokens: 700,
+      max_tokens: 2000,
       temperature: 0.7,
     });
 
@@ -195,8 +207,8 @@ async function generateQuiz(text) {
   }
   return quizJson;
 }
-
+const localIp = '192.168.1.9';
 const PORT = 5000;
-app.listen(PORT, () => {
+app.listen(PORT, localIp, () => {
   Logger.log(`Server is running on port ${PORT}`);
 });

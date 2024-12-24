@@ -9,11 +9,7 @@
   <form [formGroup]="form" (ngSubmit)="onSubmit()">
     <mat-form-field appearance="fill" class="full-width">
       <mat-label>Опис квиза</mat-label>
-      <textarea
-        matInput
-        name="description"
-        formControlName="description"
-      ></textarea>
+      <input matInput name="description" formControlName="description" />
     </mat-form-field>
 
     <div mat-dialog-actions>

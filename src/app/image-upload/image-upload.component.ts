@@ -33,6 +33,7 @@ export class ImageUploadComponent {
     this.creating.emit();
     this.loading.next(true);
     const files = event.target.files;
+    const formData = new FormData();
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i];
@@ -45,12 +46,11 @@ export class ImageUploadComponent {
       reader.readAsDataURL(file);
 
       // Prepare the form data to send
-      const formData = new FormData();
       formData.append('file', file);
-
-      // Upload the file to the server
-      this.uploadFile(formData);
     }
+
+    // Upload the file to the server
+    this.uploadFile(formData);
   }
 
   uploadFile(formData: FormData): void {
