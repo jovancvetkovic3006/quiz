@@ -41,7 +41,7 @@ export class QuizDisplayComponent {
     this.questions = quiz.questions;
   }
 
-  close(): void {
+  onClose() {
     this.dialogRef.close();
   }
 
