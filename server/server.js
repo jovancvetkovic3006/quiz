@@ -108,19 +108,44 @@ app.post(
         path.join(__dirname, '../', file.path),
       );
 
-      const resultsText = [];
-      filePaths.forEach((path) => {
-        resultsText.push(extractText(path));
+      const allTexts = await Promise.all(
+        filePaths.map((path) => extractText(path)),
+      );
+      Logger.log(`Length: ################`);
+      Logger.log('LENGTH', allTexts.join(' ').length);
+      const textChunks = allTexts
+        .join(' ')
+        .replace(/\s+/g, ' ')
+        .replace('\n', ' ')
+        .match(/.{1,3500}/g)
+        .filter((text) => text.length > 30);
+      textChunks.forEach((text, i) => {
+        Logger.log(`${i} ################`);
+        Logger.log(text);
       });
-      const allTexts = await Promise.all(resultsText);
-      let extractedText = allTexts.join(' ');
-
-      const quizJson = await generateQuiz(extractedText);
+      const allJsons = await Promise.all(
+        textChunks.map((text) => generateQuiz(text)),
+      );
+      Logger.log('Quiz chunks: ', allJsons);
+      const quizJson = allJsons.reduce((quiz, json) => {
+        if (json) {
+          if (!quiz.title) {
+            quiz = { ...json };
+          } else {
+            quiz = {
+              ...quiz,
+              questions: [...quiz.questions, ...json.questions],
+            };
+          }
+        }
+        return quiz;
+      }, {});
 
       filePaths.forEach((path) => {
         fs.unlinkSync(path);
       });
 
+      Logger.log('Quiz question: ', quizJson);
       response.status(200).json(quizJson);
     } catch (error) {
       Logger.error(error);
@@ -159,7 +184,7 @@ async function extractText(imagePath) {
     const {
       data: { text },
     } = await tesseract.recognize(imagePath, 'srp', {
-      logger: (m) => console.log(m),
+      // logger: (m) => console.log(m),
       tessedit_pageseg_mode: '12',
     });
 
@@ -198,15 +223,28 @@ async function generateQuiz(text) {
       temperature: 0.7,
     });
 
-    const quizContent = response.choices?.[0]?.message?.content?.trim() || '{}';
-
+    let quizContent = response.choices?.[0]?.message?.content?.trim() || '{}';
+    if (typeof response.choices === 'string') {
+      quizContent = '{}';
+    }
     quizJson = JSON.parse(quizContent);
-    Logger.log('Quiz question: ', quizJson);
   } catch (error) {
     Logger.error('Quiz generation failed.', error);
   }
   return quizJson;
 }
+
+const stringChop = function (str, size) {
+  // Check if the input string is null; if so, return an empty array.
+  if (str == null) return [];
+  // Convert the input string to a string if it's not already.
+  str = String(str);
+  // Convert the size parameter to an integer using the bitwise NOT operator.
+  size = ~~size;
+  // Check if the size is greater than 0; if so, split the string into chunks of the specified size using a regular expression and return the result as an array.
+  return size > 0 ? str.match(new RegExp('.{1,' + size + '}', 'g')) : [str];
+};
+
 const localIp = '192.168.1.9';
 const PORT = 5000;
 app.listen(PORT, localIp, () => {
